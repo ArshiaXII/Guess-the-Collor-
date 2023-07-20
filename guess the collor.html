@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=yes">
+    <title>Color Guessing Game</title>
+    <style>
+        body{
+            text-align:center;
+            font-family:sans-serif;
+        }
+        .color-box{
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 1px solid #eee;
+        }
+        #score {
+            font-size: 24px;
+        }
+        #timer {
+            font-size: 24px;
+        }
+        #level {
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="color-box"></div>
+    <h2>What's your guess?</h2>
+    <form class="answer" onsubmit="submitMyGuess();return false;">
+        # <input id="colorInput" type="text" placeholder="fff">
+    </form>
+    <button onclick="toggleColorNames()">Toggle Color Names</button>
+    <p id="score">Score: 0</p>
+    <p id="level">Level: 1</p>
+    <p id="timer">Time: 30</p>
+    <script>
+        let score = 0;
+        let timeLeft = 30;
+        let level = 1;
+        let colorNames = false;
+        const colorNameToHex = {
+            'red': 'ff0000',
+            'green': '008000',
+            'blue': '0000ff',
+            // More color names can be added here...
+        };
+
+        function submitMyGuess() {
+            const value = colorNames ? colorNameToHex[document.querySelector('#colorInput').value] : document.querySelector('#colorInput').value;
+            const currentColor = window.currentColor;
+            if (value === currentColor) {
+              alert('You are right! Congrats!');
+              score++;
+              if(score % 5 === 0) {
+                  level++;
+                  document.querySelector('#level').innerText = "Level: " + level;
+              }
+            } else {
+              alert('Wrong! Your answer was: #'+value+'. The correct answer is: #'+currentColor);
+              if(score > 0) {
+                score--;
+              }
+            }
+            document.querySelector('#colorInput').value = '';
+            document.querySelector('#score').innerText = "Score: " + score;
+            setRandomColor();
+            resetTimer();
+        }
+
+        function toggleColorNames() {
+            colorNames = !colorNames;
+            document.querySelector('#colorInput').placeholder = colorNames ? "Color Name" : "Hex Code";
+        }
+
+        function randomNumber() {
+          const n = Math.ceil(Math.random()*15);
+          if (n > 9) {
+            return 'abcdef'[n-10];
+          }
+          return n+'';
+        }
+
+        function setRandomColor() {
+          const hex = randomNumber() + randomNumber() + randomNumber();
+          window.currentColor = hex;
+          document.querySelector('.color-box').style.backgroundColor = '#'+hex;
+        }
+
+        function resetTimer() {
+            clearInterval(window.timerInterval);
+            timeLeft = 30;
+            window.timerInterval = setInterval(() => {
+                timeLeft--;
+                document.querySelector('#timer').innerText = "Time: " + timeLeft;
+                if(timeLeft <= 0) {
+                    alert('Time is up!');
+                    document.querySelector('#colorInput').value = '';
+                    setRandomColor();
+                    resetTimer();
+                }
+            }, 1000);
+        }
+
+        setRandomColor();
+        resetTimer();
+    </script>
+</body>
+</html>
